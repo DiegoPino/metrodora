@@ -998,22 +998,14 @@ function metrodora_theme($existing, $type, $theme, $path) {
       }
     }
 
-    // Explode content-type to handle mimetypes with more than one
-    // property (eg. image/jpeg;charset=UTF-8).
-    $content_type_array = explode(';', $response_mimetype);
-    $content_type_allowed = FALSE;
-    foreach ($content_type_array as $content_type) {
-      if (in_array(strtolower($content_type), $types)) {
-        $content_type_allowed = TRUE;
-      }
-    }
-    if (!empty($result->data) && $code != 400 && $code != 500 && $content_type_allowed) {
+
+    if (!empty($result->data) && $code != 400 && $code != 500) {
         $file = file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
         return $file->uri;
     }
     else {
       // If we are unsuccessful then log a message in watchdog.
-      watchdog('imagecache_external', 'The image %url could not be retrieved', array('%url' => $url));
+      watchdog('metrodora_external_fetch', 'The external image %url could not be retrieved', array('%url' => $url));
       return FALSE;
     }
   }
