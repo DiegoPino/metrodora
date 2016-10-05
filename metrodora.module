@@ -981,9 +981,9 @@ function metrodora_theme($existing, $type, $theme, $path) {
    */
   function metrodora_external_fetch($url, $cachepath) {
     // Validate the image URL against the whitelist.
-    
+    //This is weird, but we need the current logged in cookie session
+
     $result = drupal_http_request($url);
-    dpm($result);
     $code  = floor($result->code / 100) * 100;
     // If content-type not set, use the default 'application/octet-stream'.
     $response_mimetype = isset($result->headers['content-type']) ? strtolower($result->headers['content-type']) : 'application/octet-stream';
