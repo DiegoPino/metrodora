@@ -15,9 +15,9 @@ function metrodora_collagebyfacet_block() {
 
     $query_processor = new IslandoraSolrQueryProcessor();
     $query = '*:*';
-    $query_processor->solrParams['rows'] = 10;
-    $query_processor->internalSolrParams['type'] == "edismax";
-     $query_processor->buildQuery($query);
+    $query_processor->solrLimit = 10;
+    $query_processor->internalSolrParams['type'] = "edismax";
+    $query_processor->buildQuery($query);
      // Todo make this solr field configurable.
     $query_processor->solrParams['fl'] = 'PID,  mods_titleInfo_title_ms, ancestors_ms';
     $query_processor->solrParams['fq'][] = '-groupValue:null';
@@ -31,7 +31,7 @@ function metrodora_collagebyfacet_block() {
       $query_processor->executeQuery(FALSE);
       dpm($query_processor->islandoraSolrResult);
       $solr_results = $query_processor->islandoraSolrResult['grouped'];
-      if (!empty($solr_results['matches'])) { //@todo have to check if 0 matches give us empty
+      if (!empty($solr_results['mods_subject_topic_s']['matches'])) { //@todo have to check if 0 matches give us empty
         /*
         groups (Array, 50 elements)
         0 (Array, 2 elements)
