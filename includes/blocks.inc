@@ -17,7 +17,7 @@ function metrodora_collagebyfacet_block() {
   $query = '*:*';
  
   // Todo make this solr field configurable.
-  $query_processor->solrParams['fl'] = 'PID, mods_titleInfo_title_ms, ancestors_ms';
+  $query_processor->solrParams['fl'] = 'PID, mods_titleInfo_title_s, ancestors_ms';
   $query_processor->solrParams['fq'][] = 'mods_subject_topic_s:[* TO *]'; // only those that have the value
   $query_processor->solrParams['fq'][] = "fedora_datastreams_ms:JPG";
   //This is really silly. drupal http request does not pass it's own credentials. So..
@@ -87,7 +87,7 @@ function metrodora_collagebyfacet_block() {
         $block['widget'.$group]['caption'] = array(
           '#prefix' => '<div class="caption">',
           '#suffix' => '</div>',
-          '#markup' => "<h4>hola {$docinfo['doclist']['docs'][0]['mods_titleInfo_title_ms']}</h4>",
+          '#markup' => "<h1>{$docinfo['groupValue']}</h1>",
           '#attributes' => array(
             'class' => array('caption')
           ),
