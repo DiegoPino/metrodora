@@ -62,8 +62,11 @@ function metrodora_collagebyfacet_block() {
       start (Integer) 0
       docs (Array, 1 element)
       */
-    
-          
+      $count_docs = 0;
+      $block = array(
+        '#prefix' => '<div class="row">',
+        '#suffix' => '</div>',
+      );    
       
       foreach($solr_results['mods_subject_topic_s']['groups'] as $group => $docinfo) {
         $count_docs += $docinfo['doclist']['numFound'];
