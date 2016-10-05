@@ -939,6 +939,7 @@ function metrodora_theme($existing, $type, $theme, $path) {
       // Obtain the "real" URL to this file.
       if (url_is_external($url)) {
         return FALSE; // we only process Internal URLS
+        dpm('was external');
       }
       $url = drupal_realpath($url);
       
@@ -966,6 +967,7 @@ function metrodora_theme($existing, $type, $theme, $path) {
       }
     }
     // We couldn't get the file.
+     dpm('could not get it');
     return FALSE;
   }
 
