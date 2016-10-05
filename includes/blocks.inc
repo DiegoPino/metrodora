@@ -16,7 +16,7 @@ function metrodora_collagebyfacet_block() {
     $query_processor = new IslandoraSolrQueryProcessor();
     $query = '*:*';
     $query_processor->internalSolrParams['type'] = "edismax";
-    $query_processor->internalSolrParams['limit'] = 7
+    $query_processor->internalSolrParams['limit'] = 7;
     $query_processor->buildQuery($query);
      // Todo make this solr field configurable.
     $query_processor->solrParams['fl'] = 'PID,  mods_titleInfo_title_ms, ancestors_ms';
