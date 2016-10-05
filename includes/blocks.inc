@@ -28,6 +28,7 @@ function metrodora_collagebyfacet_block() {
     
     try {
       $query_processor->executeQuery(FALSE);
+      dpm($query_processor->islandoraSolrResult);
       $solr_results = $query_processor->islandoraSolrResult['response'];
       if ($solr_results['numFound'] == 1) {
         if (isset($solr_results['objects'][0]['solr_doc']['ancestors_ms'])) {
