@@ -15,22 +15,48 @@ function metrodora_collagebyfacet_block() {
 
     $query_processor = new IslandoraSolrQueryProcessor();
     $query = '*:*';
-    $query_processor->buildQuery($query);
+    $query_processor->solrLimit = 10;
     $query_processor->internalSolrParams['type'] == "edismax";
-    // Todo make this solr field configurable.
+     $query_processor->buildQuery($query);
+     // Todo make this solr field configurable.
     $query_processor->solrParams['fl'] = 'PID,  mods_titleInfo_title_ms, ancestors_ms';
-     $query_processor->solrParams['fq'][] = '-groupValue:null';
-     $query_processor->solrParams['group'] = 'true';
-      $query_processor->solrParams['group.field'] = 'mods_subject_topic_s';
-         $query_processor->solrParams['group.sort'] = 'fgs_lastModifiedDate_dt desc';
+    $query_processor->solrParams['fq'][] = '-groupValue:null';
+    $query_processor->solrParams['group'] = 'true';
+    $query_processor->solrParams['group.field'] = 'mods_subject_topic_s';
+    $query_processor->solrParams['group.sort'] = 'fgs_lastModifiedDate_dt desc';
      
     
     
     try {
       $query_processor->executeQuery(FALSE);
       dpm($query_processor->islandoraSolrResult);
-      $solr_results = $query_processor->islandoraSolrResult['response'];
-      if ($solr_results['numFound'] == 1) {
+      $solr_results = $query_processor->islandoraSolrResult['grouped'];
+      if (!empty($solr_results['matches'])) { //@todo have to check if 0 matches give us empty
+        /*
+        groups (Array, 50 elements)
+        0 (Array, 2 elements)
+        groupValue (NULL)
+        doclist (Array, 3 elements)
+          numFound (Integer) 4850
+          start (Integer) 0
+          docs (Array, 1 element)
+        */
+        foreach($solr_results['mods_subject_topic_s']['groups'] as $group => $docinfo) {
+          $block[$group] = array(
+            '#theme' => 'image_style',
+            '#path' => "islandora/object/{$docinfo}/datastream/OBJ/view",
+            '#style_name' => 'metro_medium',
+            '#alt' => 'alt',
+            '#title' => 'title',
+            '#attributes' => array(
+              'class' => array('img-responsive','center-block')
+            )
+          );
+          
+        }
+      
+      }
+      if ($solr_results['mods_subject_topic_s'] == 1) {
         if (isset($solr_results['objects'][0]['solr_doc']['ancestors_ms'])) {
           $collection_pids = (array) $solr_results['objects'][0]['solr_doc']['ancestors_ms'];
         }
