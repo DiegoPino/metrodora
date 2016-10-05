@@ -66,7 +66,8 @@ function metrodora_collagebyfacet_block() {
           
       
       foreach($solr_results['mods_subject_topic_s']['groups'] as $group => $docinfo) {
-          
+        $count_docs += $docinfo['doclist']['numFound'];
+        $count_pergroup[$group] = $docinfo['doclist']['numFound'];
         $block['widget'.$group]= array(
           '#type' => 'container',
           '#attributes' => array(
@@ -93,6 +94,20 @@ function metrodora_collagebyfacet_block() {
           ),
         );
       }
+      shuffle($count_pergroup);
+      if (count($count_pergroup) > 1) {
+        $i = 0;
+        foreach ($count_pergroup as $group => $count) {
+          $i++;
+          $percent = floor($count*100/$count_docs);
+          $block['widget'.$group]['#attributes']['style'] = array(
+            "width:{$percent}%;float:left" 
+          );
+          $block['widget'.$group]['#weight'] = $i;
+        }
+      }
+    
+    
     }
     
    
