@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * @file
  * Holds block definitions for the Metrodora.
