@@ -932,7 +932,7 @@ function metrodora_theme($existing, $type, $theme, $path) {
     // Create the extenal images directory and ensure it's writable.
     $hash = md5($url);
     $filename = $hash;
-
+    
     // Check if this is a non-standard file stream and adjust accordingly.
     $scheme = file_uri_scheme($url);
     if ($scheme != 'http' && $scheme != 'https') {
@@ -947,21 +947,21 @@ function metrodora_theme($existing, $type, $theme, $path) {
 
     // Parse the url to get the path components.
     $url_parameters = drupal_parse_url($url);
-
+    dpm($url_parameters);
     // Add the extension for real images.
     if ($extension = pathinfo($url_parameters['path'], PATHINFO_EXTENSION)) {
       if (in_array($extension, array('jpg', 'png', 'gif'))) {
         $filename .= '.' . $extension;
       }
     }
-
+    $filename .= '.jpg';
     $default_scheme = file_default_scheme();
     $directory = $default_scheme . '://' . 'islandora_image_cache';
     if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
       if (file_exists($directory . '/' . $filename)) {
         return $directory . '/' . $filename;
       }
-
+      dpm(array($url));
       if ($file_uri = metrodora_external_fetch($url, $directory . '/' . $filename)) {
         return $file_uri;
       }
@@ -985,7 +985,7 @@ function metrodora_theme($existing, $type, $theme, $path) {
     dpm($url);
     dpm($cachepath);
     $result = drupal_http_request($url);
-    $code   = floor($result->code / 100) * 100;
+    $code  = floor($result->code / 100) * 100;
     // If content-type not set, use the default 'application/octet-stream'.
     $response_mimetype = isset($result->headers['content-type']) ? strtolower($result->headers['content-type']) : 'application/octet-stream';
 
