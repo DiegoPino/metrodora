@@ -842,3 +842,39 @@ function metrodora_permission() {
 function metrodora_item_description_tab_access(AbstractObject $object) {
   return islandora_object_access(METRODORA_ITEM_TAB_PERMISSION, $object) && metrodora_compound_child_metadata_access($object);
 }
+
+
+/**
+ * Implements hook_block_info().
+ */
+function metrodora_block_info() {
+  $blocks['metrodora_widget_one'] = array(
+    'info' => t('Metrodora Homepage Widget grouped by facet'),
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => '<front>',
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  /*$blocks['metrodora_widget_two'] = array(
+    'info' => t('Metrodora Widget timeline'),
+    'visibility' => BLOCK_VISIBILITY_LISTED,
+    'pages' => 'islandora/object/*',
+    'cache' => DRUPAL_NO_CACHE,
+  );*/
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function metrodora_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'metrodora_widget_one':
+      module_load_include('inc', 'metrodora', 'includes/blocks');
+      $block['subject'] = NULL;
+      $block['content'] = metrodora_collagebyfacet_block();
+      break;
+  }
+  return $block;
+}
+
