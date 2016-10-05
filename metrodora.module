@@ -852,7 +852,7 @@ function metrodora_block_info() {
     'info' => t('Metrodora Homepage Widget grouped by facet'),
     'visibility' => BLOCK_VISIBILITY_LISTED,
     'pages' => '<front>',
-    'cache' => DRUPAL_CACHE,
+    'cache' => DRUPAL_CACHE_PER_PAGE,
   );
   /*$blocks['metrodora_widget_two'] = array(
     'info' => t('Metrodora Widget timeline'),
