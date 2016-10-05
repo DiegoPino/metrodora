@@ -70,7 +70,7 @@ function metrodora_collagebyfacet_block() {
         $block['widget'.$group]= array(
           '#type' => 'container',
           '#attributes' => array(
-            'class' => array('text-right'),
+            'class' => array('text-right', 'widget-varysize'),
           ),
         );
         $block['widget'.$group]['img'] = array(
