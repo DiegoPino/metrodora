@@ -103,6 +103,7 @@ function metrodora_collagebyfacet_block() {
         foreach ($count_pergroup as $group => $count) {
           $i++;
           $percent = floor($count*100/$count_docs);
+          $percent = $percent < 10 ? 10 : $percent;
           $block['widget'.$group]['#attributes']['style'] = array(
             "width:{$percent}%;float:left" 
           );
@@ -114,7 +115,7 @@ function metrodora_collagebyfacet_block() {
     }
     
    
-      dpm($solr_results);
+      //dpm($solr_results);
      // foreach($pids as $key => $pid) {
         //$block['key'] =
         
