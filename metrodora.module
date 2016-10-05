@@ -981,7 +981,9 @@ function metrodora_theme($existing, $type, $theme, $path) {
    */
   function metrodora_external_fetch($url, $cachepath) {
     // Validate the image URL against the whitelist.
-
+    dpm('fetching');
+    dpm($url);
+    dpm($cachepath);
     $result = drupal_http_request($url);
     $code   = floor($result->code / 100) * 100;
     // If content-type not set, use the default 'application/octet-stream'.
