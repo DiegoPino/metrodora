@@ -928,7 +928,7 @@ function metrodora_theme($existing, $type, $theme, $path) {
    * @return string
    *   The url to the image.
    */
-  function  metrodora_external_generate_pat($url) {
+  function  metrodora_external_generate_path($url) {
     // Create the extenal images directory and ensure it's writable.
     $hash = md5($url);
     $filename = $hash;
@@ -937,10 +937,11 @@ function metrodora_theme($existing, $type, $theme, $path) {
     $scheme = file_uri_scheme($url);
     if ($scheme != 'http' && $scheme != 'https') {
       // Obtain the "real" URL to this file.
-      $url = drupal_realpath($url);
       if (url_is_external($url)) {
         return FALSE; // we only process Internal URLS
       }
+      $url = drupal_realpath($url);
+      
     }
 
     // Parse the url to get the path components.
