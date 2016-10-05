@@ -932,7 +932,7 @@ function metrodora_theme($existing, $type, $theme, $path) {
     // Create the extenal images directory and ensure it's writable.
     $hash = md5($url);
     $filename = $hash;
-    
+     dpm(file_create_url($url));
     // Check if this is a non-standard file stream and adjust accordingly.
     $scheme = file_uri_scheme($url);
     if ($scheme != 'http' && $scheme != 'https') {
