@@ -44,7 +44,7 @@ function metrodora_collagebyfacet_block() {
         foreach($solr_results['mods_subject_topic_s']['groups'] as $group => $docinfo) {
           $block[$group] = array(
             '#theme' => 'islandora_image_style_url',
-            '#path' => "islandora/object/{$docinfo['doclist']['docs'][0]['PID']}/datastream/OBJ/view",
+            '#path' => "islandora/object/{$docinfo['doclist']['docs'][0]['PID']}/datastream/JPG/view",
             '#style_name' => 'metro_medium',
             '#alt' => 'alt',
             '#title' => 'title',
