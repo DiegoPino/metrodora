@@ -13,86 +13,87 @@
 function metrodora_collagebyfacet_block() {
   $block = array();
 
-    $query_processor = new IslandoraSolrQueryProcessor();
-    $query = '*:*';
+  $query_processor = new IslandoraSolrQueryProcessor();
+  $query = '*:*';
  
-     // Todo make this solr field configurable.
-    $query_processor->solrParams['fl'] = 'PID, mods_titleInfo_title_ms, ancestors_ms';
-    $query_processor->solrParams['fq'][] = 'mods_subject_topic_s:[* TO *]'; // only those that have the value
-    $query_processor->solrParams['fq'][] = "fedora_datastreams_ms:JPG";
-    //This is really silly. drupal http request does not pass it's own credentials. So..
-    $query_processor->solrParams['fq'][] = "RELS_EXT_isViewableByUser_literal_ms:\"anonymous\" OR RELS_EXT_isViewableByRole_literal_ms:\"anonymous user\" OR ((*:* -RELS_EXT_isViewableByUser_literal_ms:[* TO *]) AND (*:* -RELS_EXT_isViewableByRole_literal_ms:[* TO *]))";
-    $query_processor->buildQuery($query);
-    $query_processor->solrParams['group'] = 'true';
-    $query_processor->solrParams['group.field'] = 'mods_subject_topic_s';
-    $query_processor->solrParams['group.sort'] = 'fgs_lastModifiedDate_dt desc';
-    $query_processor->solrLimit = 7;
+  // Todo make this solr field configurable.
+  $query_processor->solrParams['fl'] = 'PID, mods_titleInfo_title_ms, ancestors_ms';
+  $query_processor->solrParams['fq'][] = 'mods_subject_topic_s:[* TO *]'; // only those that have the value
+  $query_processor->solrParams['fq'][] = "fedora_datastreams_ms:JPG";
+  //This is really silly. drupal http request does not pass it's own credentials. So..
+  $query_processor->solrParams['fq'][] = "RELS_EXT_isViewableByUser_literal_ms:\"anonymous\" OR RELS_EXT_isViewableByRole_literal_ms:\"anonymous user\" OR ((*:* -RELS_EXT_isViewableByUser_literal_ms:[* TO *]) AND (*:* -RELS_EXT_isViewableByRole_literal_ms:[* TO *]))";
+  $query_processor->buildQuery($query);
+  $query_processor->solrParams['group'] = 'true';
+  $query_processor->solrParams['group.field'] = 'mods_subject_topic_s';
+  $query_processor->solrParams['group.sort'] = 'fgs_lastModifiedDate_dt desc';
+  $query_processor->solrLimit = 7;
     
     
    
       
-      //$query_processor->executeQuery(FALSE);
-      // Guess what. Nobody ever checked if results contain something different than the expected result structure
-      // and guess again, grouping is different
-      $path_parts = parse_url(variable_get('islandora_solr_url', 'localhost:8080/solr'));
-      $solr = new Apache_Solr_Service($path_parts['host'], $path_parts['port'], $path_parts['path'] . '/');
-      $solr->setCreateDocuments(0);
+  //$query_processor->executeQuery(FALSE);
+  // Guess what. Nobody ever checked if results contain something different than the expected result structure
+  // and guess again, grouping is different
+  $path_parts = parse_url(variable_get('islandora_solr_url', 'localhost:8080/solr'));
+  $solr = new Apache_Solr_Service($path_parts['host'], $path_parts['port'], $path_parts['path'] . '/');
+  $solr->setCreateDocuments(0);
 
-      // Query is executed.
-      try {
-        $solr_query = ($query_processor->internalSolrQuery) ? $query_processor->internalSolrQuery : $query_processor->solrQuery;
-        $method = 'GET';
-        $results = $solr->search($solr_query, $query_processor->solrStart, $query_processor->solrLimit, $query_processor->solrParams, $method);
-      }
-      catch (Exception $e) {
-        drupal_set_message(check_plain(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error');
-      }
+  // Query is executed.
+  try {
+    $solr_query = ($query_processor->internalSolrQuery) ? $query_processor->internalSolrQuery : $query_processor->solrQuery;
+    $method = 'GET';
+    $results = $solr->search($solr_query, $query_processor->solrStart, $query_processor->solrLimit, $query_processor->solrParams, $method);
+  }
+  catch (Exception $e) {
+    drupal_set_message(check_plain(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error');
+  }
 
      
-      if (isset($results)) {
-      $solr_results_complete = json_decode($results->getRawResponse(), TRUE);
-      $solr_results = $solr_results_complete['grouped'];
-      if (!empty($solr_results['mods_subject_topic_s']['matches'])) { //@todo have to check if 0 matches give us empty
-        /*
-        groups (Array, 50 elements)
-        0 (Array, 2 elements)
-        groupValue (NULL)
-        doclist (Array, 3 elements)
-          numFound (Integer) 4850
-          start (Integer) 0
-          docs (Array, 1 element)
-        */
+  if (isset($results)) {
+    $solr_results_complete = json_decode($results->getRawResponse(), TRUE);
+    $solr_results = $solr_results_complete['grouped'];
+    if (!empty($solr_results['mods_subject_topic_s']['matches'])) { //@todo have to check if 0 matches give us empty
+      /*
+      groups (Array, 50 elements)
+      0 (Array, 2 elements)
+      groupValue (NULL)
+      doclist (Array, 3 elements)
+      numFound (Integer) 4850
+      start (Integer) 0
+      docs (Array, 1 element)
+      */
     
           
       
-        foreach($solr_results['mods_subject_topic_s']['groups'] as $group => $docinfo) {
+      foreach($solr_results['mods_subject_topic_s']['groups'] as $group => $docinfo) {
           
-          $block['widget'.$group]= array(
-            '#type' => 'container',
-            '#attributes' => array(
-              'class' => array('text-right'),
-            ),
-          );
-          $block['widget'.$group]['img'] = array(
-            '#theme' => 'islandora_image_style_url',
-            '#path' => "islandora/object/{$docinfo['doclist']['docs'][0]['PID']}/datastream/JPG/view",
-            '#style_name' => 'metro_medium',
-            '#alt' => 'alt',
-            '#title' => 'title',
-            '#attributes' => array(
-              'class' => array('img-responsive','center-block')
-            )
-          
-          );
-          $block['widget'.$group]['caption'] = array(
-           'type' => 'container',
-           '#markup' => "<h4>hola {$docinfo['doclist']['docs'][0]['mods_titleInfo_title_ms']}</h4>",
+        $block['widget'.$group]= array(
+          '#type' => 'container',
           '#attributes' => array(
-              'class' => array('caption')
-            ),
-          );
-        }
+            'class' => array('text-right'),
+          ),
+        );
+        $block['widget'.$group]['img'] = array(
+          '#theme' => 'islandora_image_style_url',
+          '#path' => "islandora/object/{$docinfo['doclist']['docs'][0]['PID']}/datastream/JPG/view",
+          '#style_name' => 'metro_medium',
+          '#alt' => 'alt',
+          '#title' => 'title',
+          '#attributes' => array(
+            'class' => array('img-responsive','center-block')
+          )
+          
+        );
+        $block['widget'.$group]['caption'] = array(
+          '#prefix' => '<div class="caption">',
+          '#sufix' => '</div>',
+          '#markup' => "<h4>hola {$docinfo['doclist']['docs'][0]['mods_titleInfo_title_ms']}</h4>",
+          '#attributes' => array(
+            'class' => array('caption')
+          ),
+        );
       }
+    }
     
    
       dpm($solr_results);
