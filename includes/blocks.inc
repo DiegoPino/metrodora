@@ -19,7 +19,7 @@ function metrodora_collagebyfacet_block() {
      // Todo make this solr field configurable.
     $query_processor->solrParams['fl'] = 'PID,  mods_titleInfo_title_ms, ancestors_ms';
     $query_processor->solrParams['fq'][] = 'mods_subject_topic_s:[* TO *]'; // only those that have the value
-    $query_processor->solrParams['fq'][] ="fedora_datastreams_ms:\"JPG\"";
+    $query_processor->solrParams['fq'][] = "fedora_datastreams_ms:JPG";
     $query_processor->buildQuery($query);
     $query_processor->solrParams['group'] = 'true';
     $query_processor->solrParams['group.field'] = 'mods_subject_topic_s';
