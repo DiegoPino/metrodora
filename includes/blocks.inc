@@ -19,8 +19,7 @@ function metrodora_collagebyfacet_block() {
     $query_processor->internalSolrParams['type'] == "edismax";
     // Todo make this solr field configurable.
     $query_processor->solrParams['fl'] = 'PID,  mods_titleInfo_title_ms, ancestors_ms';
-   $query_processor->solrParams['fq'][] = 'PID:' . "\"{$islandora_object->id}\"";
-    $query_processor->solrParams['fq'][] = '-groupValue:null';
+     $query_processor->solrParams['fq'][] = '-groupValue:null';
      $query_processor->solrParams['group'] = 'true';
       $query_processor->solrParams['group.field'] = 'mods_subject_topic_s';
          $query_processor->solrParams['group.sort'] = 'fgs_lastModifiedDate_dt desc';
