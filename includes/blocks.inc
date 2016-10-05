@@ -29,7 +29,7 @@ function metrodora_collagebyfacet_block() {
     $query_processor->solrLimit = 7;
     
     
-    try {
+   
       
       //$query_processor->executeQuery(FALSE);
       // Guess what. Nobody ever checked if results contain something different than the expected result structure
@@ -48,11 +48,11 @@ function metrodora_collagebyfacet_block() {
         drupal_set_message(check_plain(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error');
       }
 
-      $object_results = array();
+     
       if (isset($results)) {
-      $solr_results = json_decode($results->getRawResponse(), TRUE);
-      dpm($query_processor->islandoraSolrResult);
-      $solr_results = $query_processor->islandoraSolrResult['grouped'];
+      $solr_results_complete = json_decode($results->getRawResponse(), TRUE);
+      dpm($solr_results_complete);
+      $solr_results = $solr_results_complete['grouped'];
       if (!empty($solr_results['mods_subject_topic_s']['matches'])) { //@todo have to check if 0 matches give us empty
         /*
         groups (Array, 50 elements)
@@ -79,7 +79,7 @@ function metrodora_collagebyfacet_block() {
       
       }
     
-    }
+   
       dpm($solr_results);
      // foreach($pids as $key => $pid) {
         //$block['key'] =
@@ -88,9 +88,7 @@ function metrodora_collagebyfacet_block() {
     
     
     
-    }
-    catch (Exception $e) {
-      watchdog(t('Metrodora Collage by Facet Block Error', nl2br(check_plain($e->getMessage()))), NULL, WATCHDOG_WARNING);
+    
     }
   
   
