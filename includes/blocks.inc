@@ -41,7 +41,7 @@ function metrodora_collagebyfacet_block() {
       // Query is executed.
       try {
         $solr_query = ($query_processor->internalSolrQuery) ? $query_processor->internalSolrQuery : $query_processor->solrQuery;
-        $method = $use_post ? 'POST' : 'GET';
+        $method = 'GET';
         $results = $solr->search($solr_query, $query_processor->solrStart, $query_processor->solrLimit, $query_processor->solrParams, $method);
       }
       catch (Exception $e) {
@@ -51,7 +51,6 @@ function metrodora_collagebyfacet_block() {
      
       if (isset($results)) {
       $solr_results_complete = json_decode($results->getRawResponse(), TRUE);
-      dpm($solr_results_complete);
       $solr_results = $solr_results_complete['grouped'];
       if (!empty($solr_results['mods_subject_topic_s']['matches'])) { //@todo have to check if 0 matches give us empty
         /*
@@ -74,9 +73,7 @@ function metrodora_collagebyfacet_block() {
               'class' => array('img-responsive','center-block')
             )
           );
-          
         }
-      
       }
     
    
