@@ -86,7 +86,7 @@ function metrodora_collagebyfacet_block() {
         );
         $block['widget'.$group]['caption'] = array(
           '#prefix' => '<div class="caption">',
-          '#sufix' => '</div>',
+          '#suffix' => '</div>',
           '#markup' => "<h4>hola {$docinfo['doclist']['docs'][0]['mods_titleInfo_title_ms']}</h4>",
           '#attributes' => array(
             'class' => array('caption')
