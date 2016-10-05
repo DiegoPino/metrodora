@@ -882,7 +882,7 @@ function metrodora_block_view($delta = '') {
 
 function metrodora_theme($existing, $type, $theme, $path) {
     return array(
-      'image_style_outside_files' => array(
+      'islandora_image_style_url' => array(
 	    'variables' => array(
 	      'style_name' => NULL,
 	      'path' => NULL,
@@ -894,21 +894,126 @@ function metrodora_theme($existing, $type, $theme, $path) {
     );
   }
 
+ 
+ 
   /**
-   * This theme function is designed to deal with the limitation that
-   * theme_image_style does not work with images outside the files directory.
-   * 
-   * Usage is the same as theme_image_style.
-   * 
-   * @param $variables
+   * Returns HTML for an image using a specific image style.
+   *
+   * @param array $variables
+   *   An associative array containing:
+   *   - style_name: The name of the style to be used to alter the original image.
+   *   - path: The path of the image file relative to the Drupal files directory.
+   *     This function does not work with images outside the files directory nor
+   *     with remotely hosted images.
+   *   - alt: The alternative text for text-based browsers.
+   *   - title: The title text is displayed when the image is hovered in some
+   *     popular browsers.
+   *   - attributes: Associative array of attributes to be placed in the img tag.
+   *
+   * @ingroup themeable
    */
- function theme_image_style_outside_files($variables) {
-    $styled_path = image_style_url($variables['style_name'], $variables['path']);
-    if (!file_exists($styled_path)) {
-      $style = image_style_load($variables['style_name']);
-      image_style_create_derivative($style, $variables['path'], $styled_path);
+  function theme_islandora_image_style_url($variables) {
+    if ($variables['path'] = metrodora_external_generate_path($variables['path'])) {
+      return theme('image_style', $variables);
     }
-    $variables['path'] = $styled_path;
-    return theme('image', $variables);
+    return FALSE;
+  }
+
+  /**
+   * Util to generate a path to an image.
+   *
+   * @param string $url
+   *   The url to the image.
+   *
+   * @return string
+   *   The url to the image.
+   */
+  function  metrodora_external_generate_pat($url) {
+    // Create the extenal images directory and ensure it's writable.
+    $hash = md5($url);
+    $filename = $hash;
+
+    // Check if this is a non-standard file stream and adjust accordingly.
+    $scheme = file_uri_scheme($url);
+    if ($scheme != 'http' && $scheme != 'https') {
+      // Obtain the "real" URL to this file.
+      $url = drupal_realpath($url);
+      if (url_is_external($url)) {
+        return FALSE; // we only process Internal URLS
+      }
+    }
+
+    // Parse the url to get the path components.
+    $url_parameters = drupal_parse_url($url);
+
+    // Add the extension for real images.
+    if ($extension = pathinfo($url_parameters['path'], PATHINFO_EXTENSION)) {
+      if (in_array($extension, array('jpg', 'png', 'gif'))) {
+        $filename .= '.' . $extension;
+      }
+    }
+
+    $default_scheme = file_default_scheme();
+    $directory = $default_scheme . '://' . 'islandora_image_cache';
+    if (file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS)) {
+      if (file_exists($directory . '/' . $filename)) {
+        return $directory . '/' . $filename;
+      }
+
+      if ($file_uri = metrodora_external_fetch($url, $directory . '/' . $filename)) {
+        return $file_uri;
+      }
+    }
+    // We couldn't get the file.
+    return FALSE;
+  }
+
+  /**
+   * Api function to fetch a url.
+   *
+   * @param string $url
+   *   The url to fetch.
+   * @param string $cachepath
+   *   The directory where to save the images within the files directory.
+   */
+  function metrodora_external_fetch($url, $cachepath) {
+    // Validate the image URL against the whitelist.
+
+    $result = drupal_http_request($url);
+    $code   = floor($result->code / 100) * 100;
+    // If content-type not set, use the default 'application/octet-stream'.
+    $response_mimetype = isset($result->headers['content-type']) ? strtolower($result->headers['content-type']) : 'application/octet-stream';
+
+    // Add extension to the cached file to allow file_entity to use it for
+    // mimetype identification.
+    $cachepath_ext = pathinfo($cachepath, PATHINFO_EXTENSION);
+    if (!$cachepath_ext) {
+      require_once DRUPAL_ROOT . '/includes/file.mimetypes.inc';
+      $map = file_mimetype_mapping();
+      $mimetype_id = array_search($response_mimetype, $map['mimetypes']);
+      if ($mimetype_id !== FALSE) {
+        $cachepath_ext = array_search($mimetype_id, $map['extensions']);
+        $cachepath .= $cachepath_ext ? '.' . $cachepath_ext : '';
+      }
+    }
+
+    // Explode content-type to handle mimetypes with more than one
+    // property (eg. image/jpeg;charset=UTF-8).
+    $content_type_array = explode(';', $response_mimetype);
+    $content_type_allowed = FALSE;
+    foreach ($content_type_array as $content_type) {
+      if (in_array(strtolower($content_type), $types)) {
+        $content_type_allowed = TRUE;
+      }
+    }
+    if (!empty($result->data) && $code != 400 && $code != 500 && $content_type_allowed) {
+        $file = file_save_data($result->data, $cachepath, FILE_EXISTS_REPLACE);
+        return $file->uri;
+    }
+    else {
+      // If we are unsuccessful then log a message in watchdog.
+      watchdog('imagecache_external', 'The image %url could not be retrieved', array('%url' => $url));
+      return FALSE;
+    }
   }
 
