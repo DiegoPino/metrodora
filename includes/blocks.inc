@@ -30,7 +30,27 @@ function metrodora_collagebyfacet_block() {
     
     
     try {
-      $query_processor->executeQuery(FALSE);
+      
+      //$query_processor->executeQuery(FALSE);
+      // Guess what. Nobody ever checked if results contain something different than the expected result structure
+      // and guess again, grouping is different
+      $path_parts = parse_url(variable_get('islandora_solr_url', 'localhost:8080/solr'));
+      $solr = new Apache_Solr_Service($path_parts['host'], $path_parts['port'], $path_parts['path'] . '/');
+      $solr->setCreateDocuments(0);
+
+      // Query is executed.
+      try {
+        $solr_query = ($query_processor->internalSolrQuery) ? $query_processor->internalSolrQuery : $query_processor->solrQuery;
+        $method = $use_post ? 'POST' : 'GET';
+        $results = $solr->search($solr_query, $query_processor->solrStart, $query_processor->solrLimit, $query_processor->solrParams, $method);
+      }
+      catch (Exception $e) {
+        drupal_set_message(check_plain(t('Error searching Solr index')) . ' ' . $e->getMessage(), 'error');
+      }
+
+      $object_results = array();
+      if (isset($results)) {
+      $solr_results = json_decode($results->getRawResponse(), TRUE);
       dpm($query_processor->islandoraSolrResult);
       $solr_results = $query_processor->islandoraSolrResult['grouped'];
       if (!empty($solr_results['mods_subject_topic_s']['matches'])) { //@todo have to check if 0 matches give us empty
@@ -58,11 +78,8 @@ function metrodora_collagebyfacet_block() {
         }
       
       }
-      if ($solr_results['mods_subject_topic_s'] == 1) {
-        if (isset($solr_results['objects'][0]['solr_doc']['ancestors_ms'])) {
-          $collection_pids = (array) $solr_results['objects'][0]['solr_doc']['ancestors_ms'];
-        }
-      }
+    
+    }
       dpm($solr_results);
      // foreach($pids as $key => $pid) {
         //$block['key'] =
